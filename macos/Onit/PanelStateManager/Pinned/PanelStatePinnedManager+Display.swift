@@ -7,6 +7,7 @@
 
 import AppKit
 import Foundation
+import Defaults
 
 extension PanelStatePinnedManager {
     func showPanel(for state: OnitPanelState) {
@@ -21,13 +22,13 @@ extension PanelStatePinnedManager {
             x: screen.visibleFrame.maxX - 2,
             y: screen.visibleFrame.minY,
             width: 0,
-            height: screen.visibleFrame.height
+            height: overlayMode ? 0 : screen.visibleFrame.height
         )
         let newFrame = NSRect(
             x: screen.visibleFrame.maxX - state.panelWidth,
             y: screen.visibleFrame.minY,
             width: state.panelWidth,
-            height: screen.visibleFrame.height
+            height: overlayMode ? 500 : screen.visibleFrame.height
         )
         
         if panel.wasAnimated {

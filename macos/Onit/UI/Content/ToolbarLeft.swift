@@ -6,10 +6,12 @@
 //
 
 import SwiftUI
+import Defaults
 
 struct ToolbarLeft: View {
     @Environment(\.windowState) private var state
-    
+    @Default(.overlayMode) var overlayMode
+  
     var body: some View {
         HStack(alignment: .center, spacing: 0) {
             esc
@@ -21,26 +23,23 @@ struct ToolbarLeft: View {
         }
     }
     
-    private var esc: some View {
-        TextButton(
-            height: ToolbarButtonStyle.height,
-            fillContainer: false,
-            cornerRadius: ToolbarButtonStyle.cornerRadius,
-            fontSize: 13,
-            fontColor: .gray200,
-            text: "ESC",
-            tooltipPrompt: "Close Onit",
-            tooltipShortcut: .keyboardShortcuts(.escape)
-        ) {
-            AnalyticsManager.Toolbar.escapePressed()
-            PanelStateCoordinator.shared.closePanel()
-        }
+  private var esc: some View {
+    IconButton(
+        icon: .redCircle,
+        iconSize: 13,
+        inactiveColor: .closeRed,
+        hoverColor: .closeRed,
+        tooltipShortcut: .keyboardShortcuts(.escape)
+    ) {
+        AnalyticsManager.Toolbar.escapePressed()
+        PanelStateCoordinator.shared.closePanel()
     }
+}
     
     private var newChatButton: some View {
         IconButton(
             icon: .circlePlus,
-            iconSize: 22,
+            iconSize: 17,
             tooltipPrompt: "New Chat",
             tooltipShortcut: .keyboardShortcuts(.newChat)
         ) {
@@ -60,7 +59,8 @@ struct ToolbarLeft: View {
             state?.systemPromptState.shouldShowSystemPrompt = true
         }
         .onHover(perform: { isHovered in
-            if isHovered && state?.currentChat?.systemPrompt == nil && state?.systemPromptState.shouldShowSystemPrompt != true {
+            if isHovered && state?.currentChat?.systemPrompt == nil && state?.systemPromptState.shouldShowSystemPrompt != true &&
+          !overlayMode {
                 state?.systemPromptState.shouldShowSystemPrompt = true
             }
         })

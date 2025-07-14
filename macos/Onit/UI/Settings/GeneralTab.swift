@@ -14,6 +14,7 @@ struct GeneralTab: View {
     @Default(.openOnMouseMonitor) var openOnMouseMonitor
     @Default(.usePinnedMode) var usePinnedMode
     @Default(.autoContextOnLaunchTethered) var autoContextOnLaunchTethered
+    @Default(.overlayMode) var overlayMode
     @Default(.stopMode) var stopMode
     @Default(.tetheredButtonHiddenApps) var tetheredButtonHiddenApps
     @Default(.tetheredButtonHideAllApps) var tetheredButtonHideAllApps
@@ -229,6 +230,30 @@ struct GeneralTab: View {
                         }
                     }
                 }
+                if featureFlagsManager.usePinnedMode {
+                  Section {
+                      VStack(alignment: .leading, spacing: 4) {
+                          HStack {
+                              Text("Overlay Mode")
+                                  .font(.system(size: 13))
+                              Spacer()
+                              Toggle("", isOn: $overlayMode)
+                                  .toggleStyle(.switch)
+                                  .controlSize(.small)
+                              SettingInfoButton(
+                                  title: "Enables the customized overlay mode",
+                                  description:
+                                      "When enabled, the custom overlay mode will be enabled.",
+                                  defaultValue: "on",
+                                  valueType: "Bool"
+                              )
+                          }
+                          Text("Custom overlay mode.")
+                              .font(.system(size: 12))
+                              .foregroundStyle(.gray200)
+                      }
+                  }
+              }
             }
         } header: {
             HStack {

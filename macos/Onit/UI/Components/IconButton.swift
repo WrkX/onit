@@ -18,7 +18,7 @@ struct IconButton: View {
     private let activeBackground: Color
     private let cornerRadius: CGFloat
     private let activeBorderColor: Color
-    
+    private let hoverColor: Color
     private let tooltipPrompt: String?
     private let tooltipShortcut: Tooltip.Shortcut?
     
@@ -36,6 +36,8 @@ struct IconButton: View {
         cornerRadius: CGFloat = ToolbarButtonStyle.cornerRadius,
         activeBorderColor: Color = .gray500,
         
+        hoverColor: Color = .white,
+        
         tooltipPrompt: String? = nil,
         tooltipShortcut: Tooltip.Shortcut? = nil,
         
@@ -45,7 +47,7 @@ struct IconButton: View {
         self.iconSize = iconSize
         self.buttonSize = buttonSize
         self.isActive = isActive
-        
+        self.hoverColor = hoverColor
         self.activeColor = activeColor
         self.inactiveColor = inactiveColor
         self.hoverBackground = hoverBackground
@@ -63,7 +65,7 @@ struct IconButton: View {
     @State private var isPressed: Bool = false
     
     var iconColor: Color {
-        if isHovered { return .white }
+        if isHovered { return hoverColor }
         else if isActive { return activeColor }
         else { return inactiveColor }
     }

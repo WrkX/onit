@@ -97,6 +97,7 @@ extension Defaults.Keys {
     static let autoContextFromCurrentWindow = Key<Bool>("autoContextFromCurrentWindow", default: true)
     static let autoContextFromHighlights = Key<Bool>("autoContextFromHighlights", default: true)
     static let autoContextOnLaunchTethered = Key<Bool>("autoContextOnLaunchTethered", default: true)
+    static let overlayMode = Key<Bool>("overlayMode", default: true)
 
     // Web search
     static let webSearchEnabled = Key<Bool>("webSearchEnabled", default: false)

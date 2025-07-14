@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Defaults
 
 @MainActor
 final class GradientRotationState: ObservableObject {
@@ -27,13 +28,22 @@ final class GradientRotationState: ObservableObject {
 struct ExternalTetheredButtonStyle: ButtonStyle {
     @Binding var dragStartTime: Date?
     @Binding var isHovering: Bool
-    
+  
+    @Default(.overlayMode) var overlayMode
+  
     var capturedHighlightedText: Bool
     
     var buttonWidth = ExternalTetheredButton.width
     var buttonHeight = ExternalTetheredButton.height
+  
     var buttonBorderWidth = ExternalTetheredButton.borderWidth
-    var buttonCornerRadius: CGFloat = 12
+    var buttonCornerRadius: CGFloat {
+        if overlayMode {
+          return buttonWidth/2
+        } else {
+          return 12
+        }
+    }
     
     @ObservedObject private var rotationState = GradientRotationState.shared
     var tooltipText: String
@@ -59,15 +69,24 @@ struct ExternalTetheredButtonStyle: ButtonStyle {
                     clickBackground(configuration.isPressed)
                 }
                 .background {
-                    RoundedCorners(radius: buttonCornerRadius, corners: .left)
-                        .fill(.gray800)
+                    RoundedCorners(radius: buttonCornerRadius, corners: overlayMode ? .all : .left)
+                      .fill(overlayMode ? .white : .gray800)
                 }
                 .overlay {
+                  if overlayMode {
+                    RoundedCorners(radius: buttonCornerRadius, corners: .all)
+                        .stroke(
+                            isHovering ? .gray600 : .gray300,
+                            lineWidth: buttonBorderWidth
+                        )
+                  } else {
                     RoundedCorners(radius: buttonCornerRadius, corners: .left)
                         .stroke(
                             isHovering ? .gray300 : .gray600,
                             lineWidth: buttonBorderWidth
                         )
+                  }
+                    
                 }
         }
         .onHover { hovering in
@@ -82,7 +101,7 @@ struct ExternalTetheredButtonStyle: ButtonStyle {
         }
         .scaleEffect(
             isDragging || isPressed ? 1.2 : isHovering ? 1.3 : 1.0,
-            anchor: .trailing
+            anchor: overlayMode ? .center : .trailing
         )
         .animation(
             .spring(
@@ -110,7 +129,7 @@ struct ExternalTetheredButtonStyle: ButtonStyle {
                 .rotationEffect(.degrees(rotationState.rotation))
         }
         .mask {
-            RoundedCorners(radius: buttonCornerRadius, corners: .left)
+          RoundedCorners(radius: buttonCornerRadius, corners: overlayMode ? .all : .left)
                 .frame(
                     width: buttonWidth + (buttonBorderWidth * 2),
                     height: buttonHeight + (buttonBorderWidth * 2)
@@ -132,7 +151,7 @@ struct ExternalTetheredButtonStyle: ButtonStyle {
     
     @ViewBuilder
     private func clickBackground(_ clicked: Bool) -> some View {
-        RoundedCorners(radius: buttonCornerRadius, corners: .left)
+        RoundedCorners(radius: buttonCornerRadius, corners: overlayMode ? .all : .left)
             .fill(.gray900)
             .opacity(clicked ? 1 : 0)
     }
@@ -140,7 +159,8 @@ struct ExternalTetheredButtonStyle: ButtonStyle {
     private func handleHover(_ hovering: Bool) {
         self.isHovering = hovering
 
-        if hovering {
+        if hovering &&
+            !overlayMode {
             TooltipManager.shared.setTooltip(Tooltip(prompt: tooltipText))
         } else {
             TooltipManager.shared.setTooltip(nil)
