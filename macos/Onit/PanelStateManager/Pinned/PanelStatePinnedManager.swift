@@ -140,7 +140,6 @@ class PanelStatePinnedManager: PanelStateBaseManager, ObservableObject {
         shouldResizeWindows = Defaults[.overlayMode] ? false : true
         
         hideTetherWindow()
-        resetFramesOnAppChange()
         
         attachedScreen = NSScreen.mouse
         
@@ -188,7 +187,6 @@ class PanelStatePinnedManager: PanelStateBaseManager, ObservableObject {
         
         panel.orderFrontRegardless()
         
-        resetFramesOnAppChange()
         resizeWindows(for: screen)
     }
 
@@ -242,22 +240,45 @@ class PanelStatePinnedManager: PanelStateBaseManager, ObservableObject {
 
     override func resetFramesOnAppChange() {
         let panelWidth = state.panelWidth - (TetheredButton.width / 2) + 1
+        let screenFrame = self.attachedScreen?.visibleFrame ?? NSScreen.main?.visibleFrame ?? .zero
+        let panelMinX = screenFrame.maxX - panelWidth
+        let capturedForegroundWindow = state.foregroundWindow
         
-        let windows = WindowHelpers.getAllOtherAppWindows()
-        
-        for window in windows {
-            if let currentFrame = window.getFrame() {
-                let screenFrame = attachedScreen?.visibleFrame ?? NSScreen.main?.visibleFrame ?? .zero
-                let isNearPanel = abs((screenFrame.maxX - panelWidth) - currentFrame.maxX) <= 2
-                if isNearPanel {
-                    let newWidth = currentFrame.width + panelWidth
-                    let newFrame = NSRect(origin: currentFrame.origin,
-                                            size: NSSize(width: newWidth, height: currentFrame.height))
-                    _ = window.setFrame(newFrame)
-                }
+        // Handle foreground window first.
+        // This is the only one users can see, so we can handle it synchronously. This creates the desired visual experience.
+        if let foregroundWindow = capturedForegroundWindow,
+           let currentFrame = foregroundWindow.element.getFrame() {
+            let isNearOrUnderPanel = currentFrame.maxX > (panelMinX - 2) && currentFrame.maxX <= screenFrame.maxX
+            if isNearOrUnderPanel {
+                let newWidth = currentFrame.width + panelWidth
+                let newFrame = NSRect(origin: currentFrame.origin,
+                                      size: NSSize(width: newWidth, height: currentFrame.height))
+                _ = foregroundWindow.element.setFrame(newFrame)
             }
         }
         
-        targetInitialFrames.removeAll()
+        // Delay it until after our main animation finishes (hopefully)
+        // The other window resizes are expensive, so we don't want them interfering with animation.
+        DispatchQueue.main.asyncAfter(deadline: .now() + (animationDuration + 0.1)) {
+            let windows = WindowHelpers.getAllOtherAppWindows()
+            
+            for window in windows {
+                // Skip the foreground element, since we've already done it.
+                if let foregroundWindow = capturedForegroundWindow, window != foregroundWindow.element {
+                    if let currentFrame = window.getFrame() {
+                        let isNearOrUnderPanel = currentFrame.maxX > (panelMinX - 2) && currentFrame.maxX <= screenFrame.maxX
+                        if isNearOrUnderPanel {
+                            let newWidth = currentFrame.width + panelWidth
+                            let newFrame = NSRect(origin: currentFrame.origin,
+                                                  size: NSSize(width: newWidth, height: currentFrame.height))
+                            // As a best practice, we dispatch these so they other tasks can use the main thread in between.
+                            DispatchQueue.main.async {
+                                _ = window.setFrame(newFrame)
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
