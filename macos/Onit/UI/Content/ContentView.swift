@@ -15,6 +15,7 @@ struct ContentView: View {
     @ObservedObject private var accessibilityPermissionManager = AccessibilityPermissionManager.shared
     @Namespace private var animation
     
+    @Default(.overlayMode) var overlayMode
     @Default(.panelWidth) var panelWidth
     @Default(.authFlowStatus) var authFlowStatus
     @Default(.showOnboardingAccessibility) var showOnboardingAccessibility
@@ -74,7 +75,7 @@ struct ContentView: View {
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(Color.black)
+                .background(overlayMode ? .bgWrkX.opacity(0.2) : .BG)
                 .onAppear {
                     if appState.account == nil {
                         authFlowStatus = .showSignUp
@@ -124,7 +125,7 @@ struct ContentView: View {
                 }
             }
         }
-        .background(Color.black)
+        .background(overlayMode ? .bgWrkX.opacity(0.8) : .BG)
         .addBorder(
             cornerRadius: 14,
             lineWidth: 2,

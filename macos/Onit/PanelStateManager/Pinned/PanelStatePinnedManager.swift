@@ -20,6 +20,7 @@ class PanelStatePinnedManager: PanelStateBaseManager, ObservableObject {
     
     // MARK: - Properties
     
+    @Default(.overlayMode) var overlayMode
     var isResizingWindows: Bool = false
     var shouldResizeWindows : Bool = false
     var hintYRelativePosition: CGFloat?
@@ -136,7 +137,7 @@ class PanelStatePinnedManager: PanelStateBaseManager, ObservableObject {
     
     override func launchPanel(for state: OnitPanelState) {
         AnalyticsManager.Panel.opened(displayMode: "pinned")
-        shouldResizeWindows = true
+        shouldResizeWindows = Defaults[.overlayMode] ? false : true
         
         hideTetherWindow()
         resetFramesOnAppChange()

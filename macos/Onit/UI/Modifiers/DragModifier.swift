@@ -6,16 +6,22 @@
 //
 
 import SwiftUI
+import Defaults
 
 struct DragModifier: ViewModifier {
     @Environment(\.windowState) private var state
     @State var dragging = false
-
+    @Default(.overlayMode) var overlayMode
+  
     var background: Color {
         if dragging {
             Color.white.opacity(0.12)
         } else {
+          if overlayMode {
+            Color.bgWrkX.opacity(0.1)
+          } else {
             Color.BG
+          }
         }
     }
 

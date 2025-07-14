@@ -15,6 +15,7 @@ struct ExternalTetheredButton: View {
     @Environment(\.windowState) var windowState
     @Environment(\.openSettings) var openSettings
     
+    @Default(.overlayMode) var overlayMode
     @Default(.tetheredButtonHiddenApps) var tetheredButtonHiddenApps
     @Default(.tetheredButtonHideAllApps) var tetheredButtonHideAllApps
     @Default(.tetheredButtonHideAllAppsTimerDate) var tetheredButtonHideAllAppsTimerDate // Currently hides for one hour.
@@ -22,7 +23,7 @@ struct ExternalTetheredButton: View {
     
     // MARK: - Initializers
 
-    static let width: CGFloat = 33
+    static let width: CGFloat = 40
     static let height: CGFloat = 40
     static let containerWidth: CGFloat = width * 2
     static let containerHeight: CGFloat = height * 2
@@ -201,9 +202,9 @@ struct ExternalTetheredButton: View {
             .frame(
                 width: Self.containerWidth,
                 height: Self.containerHeight,
-                alignment: .trailing
+                alignment: overlayMode ? .center : .trailing
             )
-            .offset(x: 1)
+            .offset(x: overlayMode ? -2 : 1)
         }
     }
 }

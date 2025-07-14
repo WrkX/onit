@@ -13,17 +13,21 @@ struct ToolbarRight: View {
     @Environment(\.appState) private var appState
     @Environment(\.openSettings) var openSettings
     @Environment(\.windowState) private var state
-    
+  
+    @Default(.overlayMode) var overlayMode
     @Default(.mode) var mode
     @Default(.footerNotifications) var footerNotifications
 
     var body: some View {
         HStack(alignment: .center, spacing: 6) {
+          if !overlayMode {
             discord
+          }
             localMode
             history
+          if !overlayMode {
             settings
-            
+          }
             if footerNotifications.contains(.update) {
                 installUpdate
             }

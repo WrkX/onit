@@ -28,6 +28,7 @@ struct App: SwiftUI.App {
     @Default(.autoContextFromCurrentWindow) var autoContextFromCurrentWindow
     @Default(.autoContextFromHighlights) var autoContextFromHighlights
     @Default(.autoContextOnLaunchTethered) var autoContextOnLaunchTethered
+    @Default(.overlayMode) var overlayMode
     @Default(.authFlowStatus) var authFlowStatus
     
     private let appCoordinator: AppCoordinator
@@ -57,7 +58,8 @@ struct App: SwiftUI.App {
                 .onChange(of: [
                     autoContextFromCurrentWindow,
                     autoContextFromHighlights,
-                    autoContextOnLaunchTethered
+                    autoContextOnLaunchTethered,
+                    overlayMode
                 ], initial: true) { oldValue, newValue in
                     AnalyticsManager.Accessibility.flagsChanges()
                 }

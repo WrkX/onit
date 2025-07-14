@@ -27,6 +27,8 @@ class OnitRegularPanel: NSPanel {
     static let minWidth: CGFloat = 320 // Minimum width constraint
     static let minAppWidth = 500.0
 
+    @Default(.overlayMode) var overlayMode
+  
     var dragDetails: PanelDraggingDetails = .init()
     var isAnimating: Bool = false
     var wasAnimated: Bool = false
@@ -71,13 +73,14 @@ class OnitRegularPanel: NSPanel {
         let combinedView = ZStack(alignment: .leading) {
             contentView
             
+          if !overlayMode {
             // Add TetheredButton on the left side
             TetheredButton()
-                .modelContainer(state.container)
-                .environment(\.windowState, state)
-                .frame(width: TetheredButton.width, alignment: .leading)
-                .frame(maxHeight: .infinity)
-            
+              .modelContainer(state.container)
+              .environment(\.windowState, state)
+              .frame(width: TetheredButton.width, alignment: .leading)
+              .frame(maxHeight: .infinity)
+          }
             // Resize handle positioned at the left edge of the content area
             ResizeHandle(
                 onDrag: { [weak self] deltaX in

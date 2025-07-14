@@ -7,9 +7,10 @@
 
 import Foundation
 import SwiftUI
+import Defaults
 
 extension PanelStatePinnedManager {
-    
+      
     func debouncedShowTetherWindow(activeScreen: NSScreen) {
         hideTetherWindow()
 
@@ -31,7 +32,9 @@ extension PanelStatePinnedManager {
                 self?.tetherHintClicked(screen: activeScreen)
             },
             onDrag: { [weak self] translation in
+              if ((Defaults[.overlayMode]) == false ) {
                 self?.tetheredWindowMoved(screen: activeScreen, y: translation)
+              }
             }
         ).environment(\.windowState, state)
 
@@ -50,16 +53,20 @@ extension PanelStatePinnedManager {
     
     private func updateTetherWindowPosition(for screen: NSScreen, lastYComputed: CGFloat? = nil) {
         let activeScreenFrame = screen.visibleFrame
-        let positionX = activeScreenFrame.maxX - ExternalTetheredButton.containerWidth
+        let positionX = Defaults[.overlayMode] ? activeScreenFrame.maxX - ExternalTetheredButton.containerWidth - 20 : activeScreenFrame.maxX - ExternalTetheredButton.containerWidth
+      
         var positionY: CGFloat
-        
-        if let relativePosition = hintYRelativePosition {
+        if !Defaults[.overlayMode] {
+          if let relativePosition = hintYRelativePosition {
             positionY = activeScreenFrame.minY + (relativePosition * activeScreenFrame.height) - (ExternalTetheredButton.containerHeight / 2)
             positionY = max(activeScreenFrame.minY, min(positionY, activeScreenFrame.maxY - ExternalTetheredButton.containerHeight))
-        } else if lastYComputed == nil {
+          } else if lastYComputed == nil {
             positionY = activeScreenFrame.minY + (activeScreenFrame.height / 2) - (ExternalTetheredButton.containerHeight / 2)
-        } else {
+          } else {
             positionY = computeHintYPosition(for: activeScreenFrame, offset: lastYComputed)
+          }
+        } else {
+          positionY = activeScreenFrame.minY - 5
         }
         
         let frame = NSRect(
